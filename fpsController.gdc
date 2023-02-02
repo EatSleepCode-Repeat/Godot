@@ -1,0 +1,53 @@
+extends KinematicBody
+
+var camera
+var speed = 400.0
+var gravity = 9.8
+var jump_speed = 8.0
+var mouse_sensitivity = 0.2
+
+var is_grounded = false
+var velocity = Vector3(0, 0, 0)
+
+func _ready():
+    camera = get_node("Camera")
+    Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+func _physics_process(delta):
+    var desired_move = Vector3()
+
+    # movement
+    if Input.is_action_pressed("ui_up"):
+        desired_move += camera.global_transform.basis.z
+    if Input.is_action_pressed("ui_down"):
+        desired_move -= camera.global_transform.basis.z
+    if Input.is_action_pressed("ui_left"):
+        desired_move -= camera.global_transform.basis.x
+    if Input.is_action_pressed("ui_right"):
+        desired_move += camera.global_transform.basis.x
+
+    if desired_move.length() > 0:
+        desired_move = desired_move.normalized() * speed
+    velocity.x = desired_move.x
+    velocity.z = desired_move.z
+
+    # gravity
+    velocity.y -= gravity
+
+    # jumping
+    if is_grounded and Input.is_action_pressed("jump"):
+        velocity.y = jump_speed
+        is_grounded = false
+
+    # handle collisions
+    velocity = move_and_slide(velocity, Vector3(0, 1, 0))
+    if velocity.y < -0.1:
+        is_grounded = false
+    else:
+        is_grounded = true
+
+func _input(event):
+    if event is InputEventMouseMotion:
+        rotation_x = camera.rotation.x - event.relative.y * mouse_sensitivity
+        rotation_y = camera.rotation.y + event.relative.x * mouse_sensitivity
+        camera.rotation = Vector3(rotation_x, rotation_y, 0)
