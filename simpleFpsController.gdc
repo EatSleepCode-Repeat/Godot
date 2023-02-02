@@ -1,0 +1,27 @@
+extends KinematicBody
+
+var camera
+var move_speed = 10
+var mouse_sensitivity = 0.1
+
+func _ready():
+    camera = get_node("Camera")
+
+func _input(event):
+    if event is InputEventMouseMotion:
+        # rotate camera based on mouse motion
+        rotation_x = camera.rotation.x - event.relative.y * mouse_sensitivity
+        rotation_y = camera.rotation.y + event.relative.x * mouse_sensitivity
+        camera.rotation = Vector3(rotation_x, rotation_y, 0)
+
+    if event is InputEventKey:
+        # move forward/backward
+        if event.scancode == KEY_W:
+            translate(camera.global_transform.basis.z * move_speed)
+        if event.scancode == KEY_S:
+            translate(-camera.global_transform.basis.z * move_speed)
+        # strafe left/right
+        if event.scancode == KEY_A:
+            translate(-camera.global_transform.basis.x * move_speed)
+        if event.scancode == KEY_D:
+            translate(camera.global_transform.basis.x * move_speed)
