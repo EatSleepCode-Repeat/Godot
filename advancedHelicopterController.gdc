@@ -1,0 +1,54 @@
+extends KinematicBody
+
+var speed = 400.0
+var rotate_speed = 2.0
+var engine_force = 800.0
+var lift_force = 5000.0
+var blade_rotate_speed = 10.0
+var blade_rotate_damping = 5.0
+
+var blade_main
+var blade_tail
+
+func _ready():
+    blade_main = get_node("BladeMain")
+    blade_tail = get_node("BladeTail")
+
+func _physics_process(delta):
+    var desired_velocity = Vector3()
+    var rotate = 0.0
+    var blade_rotate = 0.0
+
+    # forward/backward movement
+    if Input.is_action_pressed("ui_up"):
+        desired_velocity += forward * speed
+    if Input.is_action_pressed("ui_down"):
+        desired_velocity -= forward * speed
+
+    # rotate left/right
+    if Input.is_action_pressed("ui_left"):
+        rotate -= rotate_speed
+    if Input.is_action_pressed("ui_right"):
+        rotate += rotate_speed
+
+    # apply rotation
+    rotate_y(rotate)
+
+    # apply lift force
+    apply_impulse(Vector3(0, 1, 0) * lift_force)
+
+    # apply engine force
+    var applied_force = forward * engine_force
+    apply_impulse(applied_force)
+
+    # handle collisions
+    velocity = move_and_slide(desired_velocity)
+
+    # rotate blades
+    if Input.is_action_pressed("ui_up"):
+        blade_rotate = blade_rotate_speed
+    blade_main.transform.rotate_z(blade_rotate * delta)
+    blade_tail.transform.rotate_z(blade_rotate * delta)
+
+    # apply blade rotation damping
+    blade_rotate = (blade_rotate - blade_rotate * blade_rotate_damping * delta).clamp(-10, 10)
