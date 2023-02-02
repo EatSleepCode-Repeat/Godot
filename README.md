@@ -1,7 +1,7 @@
 # Godot
 ## All Things Godot
 
-### FPS Controllers
+### __FPS Controllers__
 [Simple FPS Controller](https://github.com/EatSleepCode-Repeat/Godot/blob/master/simpleFpsController.gdc) | 
 [Advanced FPS Controller](https://github.com/EatSleepCode-Repeat/Godot/blob/master/fpsController.gdc)
 
