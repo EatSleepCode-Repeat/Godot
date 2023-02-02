@@ -1,0 +1,35 @@
+extends KinematicBody
+
+var speed = 400.0
+var rotate_speed = 2.0
+var engine_force = 800.0
+var lift_force = 5000.0
+
+func _physics_process(delta):
+    var desired_velocity = Vector3()
+    var rotate = 0.0
+
+    # forward/backward movement
+    if Input.is_action_pressed("ui_up"):
+        desired_velocity += forward * speed
+    if Input.is_action_pressed("ui_down"):
+        desired_velocity -= forward * speed
+
+    # rotate left/right
+    if Input.is_action_pressed("ui_left"):
+        rotate -= rotate_speed
+    if Input.is_action_pressed("ui_right"):
+        rotate += rotate_speed
+
+    # apply rotation
+    rotate_y(rotate)
+
+    # apply lift force
+    apply_impulse(Vector3(0, 1, 0) * lift_force)
+
+    # apply engine force
+    var applied_force = forward * engine_force
+    apply_impulse(applied_force)
+
+    # handle collisions
+    velocity = move_and_slide(desired_velocity)
