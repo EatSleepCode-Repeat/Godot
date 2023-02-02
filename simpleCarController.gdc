@@ -1,0 +1,50 @@
+extends KinematicBody
+
+var speed = 400.0
+var steer_speed = 2.0
+var engine_force = 800.0
+var brake_force = 2000.0
+
+var wheel_front_left
+var wheel_front_right
+var wheel_back_left
+var wheel_back_right
+
+func _ready():
+    wheel_front_left = get_node("WheelFL")
+    wheel_front_right = get_node("WheelFR")
+    wheel_back_left = get_node("WheelBL")
+    wheel_back_right = get_node("WheelBR")
+
+func _physics_process(delta):
+    var desired_velocity = Vector3()
+    var steer = 0.0
+
+    # forward/backward movement
+    if Input.is_action_pressed("ui_up"):
+        desired_velocity += forward * speed
+    if Input.is_action_pressed("ui_down"):
+        desired_velocity -= forward * speed
+
+    # steer left/right
+    if Input.is_action_pressed("ui_left"):
+        steer -= steer_speed
+    if Input.is_action_pressed("ui_right"):
+        steer += steer_speed
+
+    # apply steering
+    wheel_front_left.transform.rotate_y(steer)
+    wheel_front_right.transform.rotate_y(steer)
+
+    # apply engine force
+    var applied_force = forward * engine_force
+    if Input.is_action_pressed("ui_down"):
+        applied_force = -applied_force
+    apply_impulse(applied_force)
+
+    # apply brake force
+    if Input.is_action_pressed("brake"):
+        apply_impulse(-forward * brake_force)
+
+    # handle collisions
+    velocity = move_and_slide(desired_velocity)
